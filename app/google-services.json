@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "260148810989",
+    "project_id": "moja-hi-moja-cce46",
+    "storage_bucket": "moja-hi-moja-cce46.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260148810989:android:2462ebeb5e7572c4cd68e4",
+        "android_client_info": {
+          "package_name": "com.example.mojahimoja"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAGjCNgrx2q84TkmcoZs6nrb4UVdd49fJs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
