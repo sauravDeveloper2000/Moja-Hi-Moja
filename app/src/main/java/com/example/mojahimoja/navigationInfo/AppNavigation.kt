@@ -27,13 +27,29 @@ fun AppNavigation(
             composable(
                 route = Destinations.PreAuth.Login.route
             ){
-                LoginScreen()
+                LoginScreen(
+                    navigateToRegistrationScreen = {
+                        navigateAndPopUp(
+                            navController = navController,
+                            route = Destinations.PreAuth.Register.route,
+                            popUp = Destinations.PreAuth.Login.route
+                        )
+                    }
+                )
             }
 
             composable(
                 route = Destinations.PreAuth.Register.route
             ){
-                RegistrationScreen()
+                RegistrationScreen(
+                    backToLoginPage = {
+                        navigateAndPopUp(
+                            navController = navController,
+                            route = Destinations.PreAuth.Login.route,
+                            popUp = Destinations.PreAuth.Register.route
+                        )
+                    }
+                )
             }
         }
 
@@ -45,5 +61,20 @@ fun AppNavigation(
                 modifier = Modifier.fillMaxSize()
             )
         }
+    }
+}
+
+
+/**
+ * An helper method, which navigates to our desired destination by removing our current destination.
+ */
+fun navigateAndPopUp(
+    navController: NavHostController,
+    route: String,
+    popUp: String
+) {
+    navController.navigate(route) {
+        launchSingleTop = true
+        popUpTo(popUp) { inclusive = true }
     }
 }

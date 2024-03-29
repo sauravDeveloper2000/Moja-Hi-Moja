@@ -25,7 +25,9 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    navigateToRegistrationScreen:() -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = "Login", style = MaterialTheme.typography.titleLarge) })
@@ -97,7 +99,7 @@ fun LoginScreen() {
                         style = MaterialTheme.typography.titleMedium
                     )
                     TextButton(
-                        onClick = { /*TODO*/ },
+                        onClick = navigateToRegistrationScreen,
                         shape = RoundedCornerShape(10.dp),
                     ) {
                         Text(

@@ -5,10 +5,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -19,15 +19,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.mojahimoja.components.HorizontalSpace
+import androidx.hilt.navigation.compose.hiltViewModel
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RegistrationScreen() {
+fun RegistrationScreen(
+    backToLoginPage: () -> Unit,
+    registrationScreenViewModel: RegistrationScreenViewModel = hiltViewModel()
+) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -72,8 +77,14 @@ fun RegistrationScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp),
-                value = "",
-                onValueChange = {},
+                value = registrationScreenViewModel.name,
+                onValueChange = {
+                    registrationScreenViewModel.updateStates(
+                        UserActionsOnRegistrationScreen.OnNameFieldClick(
+                            name = it
+                        )
+                    )
+                },
                 label = {
                     Text(
                         text = "Name*",
@@ -81,6 +92,9 @@ fun RegistrationScreen() {
                     )
                 },
                 maxLines = 1,
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next
+                )
             )
             /**
              * For Email-ID Field
@@ -89,14 +103,23 @@ fun RegistrationScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp, vertical = 5.dp),
-                value = "",
-                onValueChange = {},
+                value = registrationScreenViewModel.emailId,
+                onValueChange = {
+                    registrationScreenViewModel.updateStates(
+                        UserActionsOnRegistrationScreen.OnEmailIdFieldClick(
+                            emailId = it
+                        )
+                    )
+                },
                 label = {
                     Text(
                         text = "Email-ID*",
                         style = MaterialTheme.typography.bodyMedium
                     )
-                }
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next
+                )
             )
             /**
              * For New Password Field
@@ -105,14 +128,23 @@ fun RegistrationScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp, vertical = 5.dp),
-                value = "",
-                onValueChange = {},
+                value = registrationScreenViewModel.newPassword,
+                onValueChange = {
+                    registrationScreenViewModel.updateStates(
+                        UserActionsOnRegistrationScreen.OnNewPasswordFieldClick(it)
+                    )
+                },
                 label = {
                     Text(
                         text = "New Password*",
                         style = MaterialTheme.typography.bodyMedium
                     )
-                })
+                },
+                keyboardOptions = KeyboardOptions(
+                    imeAction = ImeAction.Next,
+                    keyboardType = KeyboardType.Password
+                )
+            )
             /**
              * For Confirm New Password Field
              */
@@ -120,14 +152,24 @@ fun RegistrationScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp, vertical = 5.dp),
-                value = "",
-                onValueChange = {},
+                value = registrationScreenViewModel.confirmNewPassword,
+                onValueChange = {
+                    registrationScreenViewModel.updateStates(
+                        UserActionsOnRegistrationScreen.OnConfirmNewPasswordFieldClick(
+                            confirmPassword = it
+                        )
+                    )
+                },
                 label = {
                     Text(
                         text = "Confirm Password*",
                         style = MaterialTheme.typography.bodyMedium
                     )
-                }
+                },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                )
             )
             Row(
                 modifier = Modifier
@@ -142,9 +184,12 @@ fun RegistrationScreen() {
                 )
                 TextButton(
                     shape = RoundedCornerShape(10),
-                    onClick = { /*TODO*/ }
+                    onClick = {
+                        backToLoginPage()
+                        registrationScreenViewModel.resetStates()
+                    }
                 ) {
-                    Text(text = "Login",style = MaterialTheme.typography.titleMedium)
+                    Text(text = "Login", style = MaterialTheme.typography.titleMedium)
                 }
             }
         }
