@@ -1,5 +1,7 @@
 package com.example.mojahimoja.ui.registrationScreen
 
+import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -44,10 +46,37 @@ fun RegistrationScreen(
     backToLoginPage: () -> Unit,
     registrationScreenViewModel: RegistrationScreenViewModel = hiltViewModel()
 ) {
-    var isPasswordVisible by remember {
-        mutableStateOf<Boolean>(false)
+    val context = LocalContext.current
+    var displayPassword by remember {
+        mutableStateOf(false)
     }
 
+    var nameFieldError by remember {
+        mutableStateOf(false)
+    }
+    var nameErrorText by remember {
+        mutableStateOf<String?>(null)
+    }
+    var emailIDFieldError by remember {
+        mutableStateOf(false)
+    }
+    var emailIDErrorText by remember {
+        mutableStateOf<String?>(null)
+    }
+    var newPasswordFieldError by remember {
+        mutableStateOf(false)
+    }
+    var newPasswordErrorText by remember {
+        mutableStateOf<String?>(null)
+    }
+    var confirmPasswordFieldError by remember {
+        mutableStateOf(false)
+    }
+    var confirmPasswordErrorText by remember {
+        mutableStateOf<String?>(null)
+    }
+
+    val regexForName = Regex("^[a-zA-Z][A-Z a-z]{2,49}$")
     Scaffold(
         topBar = {
             TopAppBar(
@@ -60,7 +89,98 @@ fun RegistrationScreen(
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(onClick = { /*TODO*/ }) {
+            ExtendedFloatingActionButton(
+                onClick = {
+                    /**
+                     * Name validation
+                     */
+                    if (registrationScreenViewModel.name.isNotEmpty()) {
+                        if (registrationScreenViewModel.name.length in 3..50) {
+                            if (registrationScreenViewModel.name.matches(regexForName)) {
+                                nameErrorText = null
+                                nameFieldError = false
+                            } else {
+                                nameFieldError = true
+                                nameErrorText = "Name should only contains alphabets."
+                            }
+                        } else {
+                            nameFieldError = true
+                            nameErrorText = "Name length should be in between 3 and 50"
+                        }
+                    } else {
+                        nameFieldError = true
+                        nameErrorText = "Please enter your name."
+                    }
+
+                    /**
+                     * Email-ID Validation
+                     */
+                    if (registrationScreenViewModel.emailId.isNotEmpty()) {
+                        if (Patterns.EMAIL_ADDRESS.matcher(registrationScreenViewModel.emailId)
+                                .matches()
+                        ) {
+                            emailIDFieldError = false
+                            emailIDErrorText = null
+                        } else {
+                            emailIDFieldError = true
+                            emailIDErrorText = "Enter valid email-id"
+                        }
+                    } else {
+                        emailIDErrorText = "Please enter your email-id"
+                        emailIDFieldError = true
+                    }
+
+                    /**
+                     * New and Confirm Password Field Validation
+                     */
+                    if (registrationScreenViewModel.newPassword.isNotEmpty() && registrationScreenViewModel.confirmNewPassword.isNotEmpty()) {
+
+                        if ((registrationScreenViewModel.newPassword.length in 6..15) && (registrationScreenViewModel.confirmNewPassword.length in 6..15)) {
+                            if (registrationScreenViewModel.newPassword == registrationScreenViewModel.confirmNewPassword) {
+                                newPasswordFieldError = false
+                                newPasswordErrorText = null
+
+                                confirmPasswordFieldError = false
+                                confirmPasswordErrorText = null
+                            } else {
+                                // passwords are matching or not
+                                newPasswordFieldError = true
+                                newPasswordErrorText = "Passwords are not matching"
+
+                                confirmPasswordFieldError = true
+                                confirmPasswordErrorText = "Passwords are not matching"
+                            }
+                        } else {
+                            // Passwords length are 6 or 15 char
+                            newPasswordFieldError = registrationScreenViewModel.newPassword.length !in 6..15
+                            newPasswordErrorText =
+                                if (registrationScreenViewModel.newPassword.length in 6..15) null else "Password length should be 6 to 15 characters"
+
+                            confirmPasswordFieldError =
+                                registrationScreenViewModel.confirmNewPassword.length !in 6..15
+                            confirmPasswordErrorText =
+                                if (registrationScreenViewModel.confirmNewPassword.length in 6..15) null else "Password length should be 6 to 15 characters"
+
+                        }
+                    } else {
+                        // Passwords are empty or not
+                        newPasswordFieldError = registrationScreenViewModel.newPassword.isEmpty()
+                        newPasswordErrorText =
+                            if (registrationScreenViewModel.newPassword.isEmpty()) "Please enter your new password" else null
+
+                        confirmPasswordFieldError = registrationScreenViewModel.confirmNewPassword.isEmpty()
+                        confirmPasswordErrorText =
+                            if (registrationScreenViewModel.confirmNewPassword.isEmpty()) "Please enter your confirm password" else null
+                    }
+
+                    if (nameFieldError || emailIDFieldError || confirmPasswordFieldError || newPasswordFieldError) {
+                        Toast.makeText(context, "Validation Failed", Toast.LENGTH_SHORT).show()
+                        return@ExtendedFloatingActionButton
+                    } else {
+                        Toast.makeText(context, "Validation Succeeded", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            ) {
                 Text(
                     text = "Create",
                     style = MaterialTheme.typography.bodyMedium
@@ -109,7 +229,11 @@ fun RegistrationScreen(
                 maxLines = 1,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Next
-                )
+                ),
+                isError = nameFieldError,
+                supportingText = {
+                    nameErrorText?.let { Text(text = it, fontSize = 10.sp) }
+                }
             )
             /**
              * For Email-ID Field
@@ -125,6 +249,12 @@ fun RegistrationScreen(
                             emailId = it
                         )
                     )
+                },
+                isError = emailIDFieldError,
+                supportingText = {
+                    emailIDErrorText?.let {
+                        Text(text = it, fontSize = 10.sp)
+                    }
                 },
                 label = {
                     Text(
@@ -149,13 +279,19 @@ fun RegistrationScreen(
                         UserActionsOnRegistrationScreen.OnNewPasswordFieldClick(it)
                     )
                 },
-                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                isError = newPasswordFieldError,
+                supportingText = {
+                    newPasswordErrorText?.let {
+                        Text(text = it, fontSize = 10.sp)
+                    }
+                },
+                visualTransformation = if (displayPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val image =
-                        if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        if (displayPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff
                     IconButton(
                         onClick = {
-                            isPasswordVisible = !isPasswordVisible
+                            displayPassword = !displayPassword
                         }
                     ) {
                         Icon(imageVector = image, contentDescription = "Visibility")
@@ -187,13 +323,19 @@ fun RegistrationScreen(
                         )
                     )
                 },
-                visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                isError = confirmPasswordFieldError,
+                supportingText = {
+                    confirmPasswordErrorText?.let {
+                        Text(text = it, fontSize = 10.sp)
+                    }
+                },
+                visualTransformation = if (displayPassword) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     val image =
-                        if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        if (displayPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff
                     IconButton(
                         onClick = {
-                            isPasswordVisible = !isPasswordVisible
+                            displayPassword = !displayPassword
                         }
                     ) {
                         Icon(imageVector = image, contentDescription = "Visibility")
