@@ -72,6 +72,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Icon Dependency
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+    
     // Firebase Dependencies
     implementation(platform("com.google.firebase:firebase-bom:32.8.0"))
     // Add the dependency for the Firebase Authentication library
