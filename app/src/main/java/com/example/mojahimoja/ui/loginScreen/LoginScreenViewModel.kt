@@ -4,11 +4,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.mojahimoja.repositorySection.accountRepository.AccountRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginScreenViewModel @Inject constructor(): ViewModel() {
+class LoginScreenViewModel @Inject constructor(
+    private val accountRepository: AccountRepository
+): ViewModel() {
 
     var emailId by mutableStateOf("")
         private set
@@ -28,5 +33,21 @@ class LoginScreenViewModel @Inject constructor(): ViewModel() {
         }
     }
 
-
+    fun signIn(
+        inSuccessCase: () -> Unit,
+        inFailureCase: (String) -> Unit
+    ){
+        viewModelScope.launch{
+            accountRepository.login(
+                email = emailId,
+                password = password,
+                onSuccess = {
+                    inSuccessCase
+                },
+                onFailure = {
+                    inFailureCase(it)
+                }
+            )
+        }
+    }
 }

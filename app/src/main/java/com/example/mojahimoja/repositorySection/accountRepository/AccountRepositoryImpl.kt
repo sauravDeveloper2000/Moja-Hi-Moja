@@ -30,4 +30,20 @@ class AccountRepositoryImpl @Inject constructor(
     override suspend fun logOut() {
         firebaseAuth.signOut()
     }
+
+    override fun login(
+        email: String,
+        password: String,
+        onSuccess: () -> Unit,
+        onFailure: (String) -> Unit
+    ) {
+        firebaseAuth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener {
+                if (it.isSuccessful){
+                    onSuccess
+                } else {
+                    onFailure(it.exception.toString())
+                }
+            }
+    }
 }

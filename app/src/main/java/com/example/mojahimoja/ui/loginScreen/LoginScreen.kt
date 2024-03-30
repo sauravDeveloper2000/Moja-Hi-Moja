@@ -233,6 +233,14 @@ fun LoginScreen(
                         return@Button
                     } else {
                         Toast.makeText(context, "Validation Succeeded", Toast.LENGTH_SHORT).show()
+                        loginScreenViewModel.signIn(
+                            inSuccessCase = {
+                                Toast.makeText(context, "Login Succeeded", Toast.LENGTH_SHORT).show()
+                            },
+                            inFailureCase = {
+                                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                            }
+                        )
                     }
                 }
             ) {
