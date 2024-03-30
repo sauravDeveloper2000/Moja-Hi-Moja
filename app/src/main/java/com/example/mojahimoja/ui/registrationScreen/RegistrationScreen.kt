@@ -178,6 +178,14 @@ fun RegistrationScreen(
                         return@ExtendedFloatingActionButton
                     } else {
                         Toast.makeText(context, "Validation Succeeded", Toast.LENGTH_SHORT).show()
+                        registrationScreenViewModel.createAccount(
+                            inSuccessCase = {
+                                Toast.makeText(context, "Account Created Successfully", Toast.LENGTH_SHORT).show()
+                            },
+                            inFailureCase = {
+                                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                            }
+                        )
                     }
                 }
             ) {

@@ -4,11 +4,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.mojahimoja.repositorySection.accountRepository.AccountRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class RegistrationScreenViewModel @Inject constructor(): ViewModel() {
+class RegistrationScreenViewModel @Inject constructor(
+    private val accountRepository: AccountRepository
+): ViewModel() {
 
     var name by mutableStateOf<String>("")
         private set
@@ -30,6 +35,28 @@ class RegistrationScreenViewModel @Inject constructor(): ViewModel() {
             is UserActionsOnRegistrationScreen.OnEmailIdFieldClick -> this.emailId = event.emailId
             is UserActionsOnRegistrationScreen.OnNameFieldClick -> this.name = event.name
             is UserActionsOnRegistrationScreen.OnNewPasswordFieldClick -> this.newPassword = event.newPassword
+        }
+    }
+
+    /**
+     * createAccount() - Create account.
+     */
+    fun createAccount(
+        inSuccessCase: () -> Unit,
+        inFailureCase: (String) -> Unit
+    ){
+        viewModelScope.launch {
+            accountRepository.createUserAccount(
+                userEmailId = emailId,
+                newPassword = newPassword,
+                onSuccess = {
+                    inSuccessCase()
+                }
+                ,
+                onFailure = {
+                    inFailureCase(it)
+                }
+            )
         }
     }
 
