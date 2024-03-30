@@ -26,4 +26,8 @@ class AccountRepositoryImpl @Inject constructor(
                 }
             }
     }
+
+    override suspend fun logOut() {
+        firebaseAuth.signOut()
+    }
 }

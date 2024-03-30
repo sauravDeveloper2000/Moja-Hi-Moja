@@ -13,4 +13,9 @@ interface AccountRepository {
         onSuccess: (FirebaseUser?) -> Unit,
         onFailure: (String) -> Unit
     )
+
+    /**
+     * Through this function user can logout from the app.
+     */
+    suspend fun logOut()
 }
